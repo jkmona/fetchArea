@@ -3,14 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "debug": "nodemon --inspect ./bin/www",
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "ejs": "~2.6.1",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
-    "morgan": "~1.9.1"
+    "iconv-lite": "^0.4.24",
+    "morgan": "~1.9.1",
+    "superagent": "^5.0.5",
+    "superagent-charset": "^1.2.0"
   }
 }

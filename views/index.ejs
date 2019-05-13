@@ -7,24 +7,127 @@
   </head>
   <body>
     <div class="container">
-      <form id="" action="POST" class="">
+      <%-include('layouts/navbar')-%>
+      <form id="form1" action="POST" class="">
           <div class="form-group">
-            <label for="exampleInputEmail1">Email address</label>
-            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+            <label for="exampleInputPassword1">省份路径</label>
+            <input type="text" class="form-control" id="provinceURL" placeholder="provinceURL" value="http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/index.html" required>
+            <div class="invalid-feedback">路径必填!</div>
           </div>
-          <div class="form-group">
-            <label for="exampleInputPassword1">Password</label>
-            <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-          </div>
-          <div class="form-group form-check">
-            <input type="checkbox" class="form-check-input" id="exampleCheck1">
-            <label class="form-check-label" for="exampleCheck1">记住我</label>
-          </div>
-          <button type="submit" class="btn btn-primary">Submit</button>
+          <button id="btnSubmit" type="button" class="btn btn-primary">开始解析</button>
       </form>
+      <div class="progress my-2">
+        <div id="provinceProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+      <div class="progress my-2">
+        <div id="cityProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+      <div class="my-2">
+        <div id="provinceList"></div>
+        <div id="cityList"></div>
+        <div id="countyList"></div>
+      </div>
+      
     </div>
+    
     <script type="text/javascript" src="/javascripts/jquery-3.4.1.min.js"></script>
     <script type="text/javascript" src="/javascripts/bootstrap/bootstrap.min.js"></script>
+    <script type="text/javascript">
+      var provinceList = [];
+      var cityList = [];
+      var countyList = [];
+      jQuery(function(){
+        $("#btnSubmit").on('click', function(){
+          var pUrl = $('#provinceURL').val();
+          if(pUrl.length === 0){
+            $('#provinceURL').addClass("is-invalid").removeClass('is-valid');
+          }else{
+            $('#provinceURL').addClass("is-valid").removeClass('is-invalid');
+          }
+          $.ajax({cache:false, type:'post', url:"/doFetchProvince" ,
+            data:{ "provinceURL" : pUrl },
+            success : function(data) {
+              provinceList = data;
+              $("#provinceList").text(JSON.stringify(data));
+              getCityList(0);
+            },
+            error : function(e) {
+              console.log(e);
+            }
+          });
+        });
+        
+      });
+      function getCityList(pIndex){
+        setTimeout(function(){
+          fetchCityList(pIndex)
+        }, 1000);
+      }
+      function fetchCityList(pIndex){
+        let len = provinceList.length;
+        console.log(pIndex);
+        if(pIndex === len){
+          //$("#cityList").text(JSON.stringify(cityList));
+          getCountyList(0);
+          return;
+        }
+        var province = provinceList[pIndex];
+        if(province.cityURL == null || province.cityURL.length === 0) {
+          return false;
+        }
+        $.ajax({cache: false, type:'post', url: "/doFetchCity" ,
+          data:{ "cityURL": province.cityURL, "provinceId": province.nativeId },
+          success : function(data) {
+            cityList = cityList.concat(data);
+            getCityList(pIndex + 1);
+            var percent = (((pIndex+1)/len)*100).toFixed(2);
+            showProvinceProgressBar(percent);
+            $("#cityList").append(JSON.stringify(data) + "<br/>");
+          },
+          error : function(e) {
+            console.log(e);
+          }
+        });
+      }
+      function getCountyList(cIndex){
+        setTimeout(function(){
+          fetchCountyList(cIndex)
+        }, 1000);
+      }
+      function fetchCountyList(cIndex){
+        let len = cityList.length;
+        console.log(cIndex);
+        if(cIndex === len){
+          //$("#countyList").text(JSON.stringify(countyList));
+          return;
+        }
+        var city = cityList[cIndex];
+        if(city.countyURL == null || city.countyURL.length === 0) {
+          return false;
+        }
+        $.ajax({cache:false, type:'post', url:"/doFetchCounty" ,
+          data:{ "countyURL": city.countyURL, "cityId": city.nativeId},
+          success : function(data) {
+            countyList = countyList.concat(data);
+            getCountyList(cIndex + 1);
+            var percent = (((cIndex+1)/len)*100).toFixed(2);
+            showCityProgressBar(percent);
+            $("#countyList").append(JSON.stringify(data) + "<br/>");
+          },
+          error : function(e) {
+            console.log(e);
+          }
+        });
+      }
+      function showProvinceProgressBar(percent){
+        $("#provinceProgressBar").css({"width": percent+"%" });
+      }
+      function showCityProgressBar(percent){
+        $("#cityProgressBar").css({"width": percent+"%" });
+      }
+      function showCountyProgressBar(percent){
+        $("#countProgressBar").css({"width": percent+"%" });
+      }
+    </script>
   </body>
 </html>
