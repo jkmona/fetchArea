@@ -15,6 +15,7 @@
     "http-errors": "~1.6.3",
     "iconv-lite": "^0.4.24",
     "morgan": "~1.9.1",
+    "node-pinyin": "^0.2.3",
     "superagent": "^5.0.5",
     "superagent-charset": "^1.2.0"
   }
