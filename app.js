@@ -28,7 +28,7 @@ app.use('/users', usersRouter);
 //redis session
 app.use(session({
   name : "sid",
-  secret : 'Asecret123-',
+  secret : config.session_secret,
   resave : false,
   rolling : true,
   saveUninitialized : false,
