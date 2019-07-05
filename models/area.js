@@ -1,4 +1,5 @@
-import { Schema, model } from 'mongoose';
+var mongoose  = require('mongoose');
+var Schema    = mongoose.Schema;
 
 var AreaSchema = Schema({
     nativeId: String ,
@@ -16,4 +17,4 @@ var AreaSchema = Schema({
     update_at: { type: Date, default: Date.now }
 });
 
-model('Area', AreaSchema);
+mongoose.model('Area', AreaSchema);

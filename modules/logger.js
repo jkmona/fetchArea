@@ -1,18 +1,18 @@
-import { log_dir, debug } from '../config';
-import { join } from 'path';
+var config = require('../config');
+var path = require('path');
 
 var env = process.env.NODE_ENV || "development"
 
-
-import { configure, getLogger } from 'log4js';
-configure({
-  appenders: [
-    { type: 'console' },
-    { type: 'file', filename: join(log_dir, 'cheese.log'), category: 'cheese' }
-  ]
+var log4js = require('log4js');
+log4js.configure({
+  appenders: {
+    out: { type: 'console' }, 
+    app: { type: 'dateFile', filename: path.join(config.log_dir, 'app'), "pattern":"-dd.log", alwaysIncludePattern:true }
+  },
+  categories: {
+    default: { appenders: [ 'out', 'app' ], level: config.debug && env !== 'test' ? 'DEBUG' : 'ERROR' }
+  }
 });
 
-var logger = getLogger('cheese');
-logger.setLevel(debug && env !== 'test' ? 'DEBUG' : 'ERROR')
-
-export default logger;
+var logger = log4js.getLogger('app');
+module.exports = logger;
