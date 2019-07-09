@@ -4,9 +4,19 @@ var charset = require('superagent-charset');
 var pinyin = require('node-pinyin');
 var areaConst = require('../modules/const/areaConst');
 var logger = require('../modules/logger');
+var mongoose  = require('mongoose');
+var models  = require('../models');
+var Area    = models.Area;
 
 charset(superagent);
 const headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.65 Safari/537.36'};
+
+exports.getAreaList = (req, response, next) => {
+    Area.find(function(error, area){
+        logger.info("area list:" + area);
+        response.json(area);
+    });
+}
 
 exports.fetchProvince = (req, response, next) => {
     let provinceURL = req.body.provinceURL;
@@ -35,7 +45,7 @@ exports.fetchProvince = (req, response, next) => {
                 }
                 provinceArray.push({
                     nativeId: provinceId,
-                    parentId: 0,
+                    parentId: mongoose.Types.ObjectId("5d2471b29092232c68002ee3"),
                     nativeCode: provinceId + "000000000",
                     name: provinceName,
                     shortName: shortName,
@@ -45,13 +55,15 @@ exports.fetchProvince = (req, response, next) => {
                     valid: true,
                     display: true,
                     order: order,
-                    cityURL: provinceURL.slice(0, provinceURL.lastIndexOf('/')) + "/" + provinceId + ".html"
+                    URL: provinceURL.slice(0, provinceURL.lastIndexOf('/')) + "/" + provinceId + ".html"
                 });
                 order ++;
             });
         });
         //console.log(provinceArray);
-        response.json(provinceArray);
+        Area.insertMany(provinceArray,function(error, province){
+            response.json(province);
+        });
     });
     //res.json(req.body);
 }
@@ -101,7 +113,7 @@ exports.fetchCity = (req, response, next) => {
                 valid: true,
                 display: true,
                 order: order,
-                countyURL: cityURL.slice(0, cityURL.lastIndexOf('.'))  + "/" + cityId + ".html"
+                URL: cityURL.slice(0, cityURL.lastIndexOf('.'))  + "/" + cityId + ".html"
             });
             order ++;
         }else{
@@ -160,7 +172,7 @@ exports.fetchCounty = (req, response, next) => {
                     valid: true,
                     display: display,
                     order: order,
-                    townURL: countyURL.slice(0, countyURL.lastIndexOf('.'))  + "/" + countyId + ".html"
+                    URL: countyURL.slice(0, countyURL.lastIndexOf('.'))  + "/" + countyId + ".html"
                 });
                 order ++;
             } else {
@@ -194,7 +206,7 @@ exports.fetchCounty = (req, response, next) => {
     });
 }
 function getShortName(source) {
-    if(0 < source.indexOf('省直辖') || 0 < source.indexOf('区直辖')){
+    if(source.indexOf('省直辖') >= 0 || source.indexOf('区直辖') >= 0 ){
       //省直辖，自治区直辖
       return '直辖县';
     } else if(source === '市辖区'){
@@ -202,7 +214,7 @@ function getShortName(source) {
       return '市辖区';
     } else if(/自治区$/.test(source)){
       //自治区
-      if(0 < source.indexOf('内蒙古')) {
+      if(source.indexOf('内蒙古') >= 0 ) {
         return '内蒙古';
       }
       return source.slice(0,2);

@@ -13,6 +13,7 @@ var AreaSchema = Schema({
     valid: { type: Boolean, default: true},
     display: { type: Boolean, default: true},
     order: Number,
+    URL: String,
     create_at: { type: Date, default: Date.now },
     update_at: { type: Date, default: Date.now }
 });

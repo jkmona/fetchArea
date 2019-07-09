@@ -14,7 +14,12 @@
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "protocol" : "inspector",
-            "env": {"PORT": "8888"}
+            "env": {
+                "PORT": "8888", 
+                "redis_host": "10.255.56.136", 
+                "redis_auth": "a8bc83fd0613cb675c990fb228ca4d1f52d889587d294cb3fd36e1524571ee02",
+                "mongo_uri": "mongodb://sso:sso100@39.105.163.151:27017/sso_test"
+            }
         }
         /*{
             "type": "node",

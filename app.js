@@ -7,10 +7,11 @@ const config = require('./config');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var areaRouter = require('./routes/areas');
+var session = require('express-session');
 
 require('./models')
 
-//var RedisStore = require('connect-redis')(session);
+var RedisStore = require('connect-redis')(session);
 
 var app = express();
 
@@ -29,7 +30,6 @@ app.use('/users', usersRouter);
 app.use('/areas', areaRouter);
 
 //redis session
-/*
 app.use(session({
   name : "sid",
   secret : config.session_secret,
@@ -44,7 +44,6 @@ app.use(session({
     pass: config.redis_password,
   })
 }));
-*/
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
