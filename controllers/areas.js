@@ -13,7 +13,7 @@ const headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) 
 
 exports.getAreaList = (req, response, next) => {
     Area.find(function(error, area){
-        logger.info("area list:" + area);
+        logger.info('area list:' + area);
         response.json(area);
     });
 }
@@ -24,7 +24,7 @@ exports.fetchProvince = (req, response, next) => {
         // 抛错拦截
         if(err){
             console.log(err);
-            return false;
+            return next();
         }
         // 等待 code
         let body = res.text;
@@ -32,36 +32,40 @@ exports.fetchProvince = (req, response, next) => {
         var provinceArray = [];
         var order = 1;
         $('.provincetr').each(function(pIndex, elem){
-            $(elem).find("td").each(function(index, el){
-                let pa = $(el).find("a");
+            $(elem).find('td').each(function(index, el){
+                let pa = $(el).find('a');
                 let href = pa.prop('href');
-                let provinceId = href.slice(0, href.indexOf('.'));
+                let provinceId = Number(href.slice(0, href.indexOf('.')));
                 let provinceName = pa.text();
                 let shortName = getShortName(provinceName);
                 var py = pinyin(shortName,{style:'normal'});
                 if(py == null || py.length == 0){
-                    py = [["null"]];
-                    logger.error("pinyin null , province shortName:" + shortName);
+                    py = [['null']];
+                    logger.error('pinyin null , province shortName:' + shortName);
                 }
                 provinceArray.push({
                     nativeId: provinceId,
-                    parentId: mongoose.Types.ObjectId("5d2471b29092232c68002ee3"),
-                    nativeCode: provinceId + "000000000",
+                    parentId: 1,
+                    code: provinceId + '000000000',
                     name: provinceName,
                     shortName: shortName,
                     groupName: py[0].join('').slice(0,1).toUpperCase(),
-                    pinyin: py.join(' '),
-                    level: 1,
+                    phonics: py.join(' '),
+                    type: 'PROVINCE',
                     valid: true,
                     display: true,
-                    order: order,
-                    URL: provinceURL.slice(0, provinceURL.lastIndexOf('/')) + "/" + provinceId + ".html"
+                    rank: order,
+                    subURL: provinceURL.slice(0, provinceURL.lastIndexOf('/')) + '/' + provinceId + '.html'
                 });
                 order ++;
             });
         });
         //console.log(provinceArray);
-        Area.insertMany(provinceArray,function(error, province){
+        //批量入库
+        Area.insertMany(provinceArray, function(err, province){
+            if(err){
+                logger.error('入库失败：' + err.message);
+            }
             response.json(province);
         });
     });
@@ -70,17 +74,17 @@ exports.fetchProvince = (req, response, next) => {
 
 exports.fetchCity = (req, response, next) => {
     var cityURL = req.body.cityURL;
-    let provinceId = req.body.provinceId;
+    let provinceId = Number(req.body.provinceId)||0;
 
-    if(provinceId === null){
-        response.json({"status":1, "message": "province id is null"}); 
+    if(provinceId === 0){
+        response.json({'status':1, 'message': 'province id is null'}); 
     }
     superagent.get(cityURL).set(headers).buffer(true).charset('gbk').end(function (err, res) {
         // 抛错拦截
         if(err){
             logger.error(cityURL);
             logger.error(err);
-            return false;
+            return next();
         }
         // 等待 code
         let body = res.text;
@@ -88,121 +92,132 @@ exports.fetchCity = (req, response, next) => {
         var cityArray = [];
         var order = 1;
         $('.citytr').each(function(index, elem){
-        var aList = $(elem).find("td");
-        var firstTd = aList.eq(0).find("a");
-        var secondTd = aList.eq(1).find("a");
-        var href = firstTd.prop('href');
-        var cityName = secondTd.text()
-        let shortName = getShortName(cityName);
-        var py = pinyin(shortName,{style:'normal'});
-        if(py == null || py.length == 0){
-            py = [["null"]];
-            console.log("pinyin null , city shortName:"+shortName);
-        }
-        if(href != null && href.length > 0){
-            let cityId = href.slice(href.lastIndexOf('/')+1, href.indexOf('.'))
-            cityArray.push({
-                nativeId: cityId,
-                parentId: provinceId,
-                nativeCode: firstTd.text(),
-                name: cityName,
-                shortName: shortName,
-                groupName: py[0].join('').slice(0,1).toUpperCase(),
-                pinyin: py.join(' '),
-                level: 2,
-                valid: true,
-                display: true,
-                order: order,
-                URL: cityURL.slice(0, cityURL.lastIndexOf('.'))  + "/" + cityId + ".html"
-            });
-            order ++;
-        }else{
-            logger.error("city 异常连接：" + $(elem).text());
-        }
-        
+            var aList = $(elem).find('td');
+            var firstTd = aList.eq(0).find('a');
+            var secondTd = aList.eq(1).find('a');
+            var href = firstTd.prop('href');
+            var cityName = secondTd.text()
+            let shortName = getShortName(cityName);
+            var py = pinyin(shortName,{style:'normal'});
+            if(py == null || py.length == 0){
+                py = [['null']];
+                console.log('pinyin null , city shortName:'+shortName);
+            }
+            if(href != null && href.length > 0){
+                let cityId = Number(href.slice(href.lastIndexOf('/')+1, href.indexOf('.')))
+                cityArray.push({
+                    nativeId: cityId,
+                    parentId: provinceId,
+                    code: firstTd.text(),
+                    name: cityName,
+                    shortName: shortName,
+                    groupName: py[0].join('').slice(0,1).toUpperCase(),
+                    phonics: py.join(' '),
+                    type: 'CITY',
+                    valid: true,
+                    display: true,
+                    rank: order,
+                    subURL: cityURL.slice(0, cityURL.lastIndexOf('.'))  + '/' + cityId + '.html'
+                });
+                order ++;
+            }else{
+                logger.error('city 异常连接：' + $(elem).text());
+            }
         });
         //console.log(cityArray);
-        response.json(cityArray);
+        //批量入库
+        Area.insertMany(cityArray, function(err, citys){
+            if(err){
+                logger.error('入库失败：' + err.message);
+            }
+            response.json(citys);
+        });
     });
 }
 exports.fetchCounty = (req, response, next) => {
     var countyURL = req.body.countyURL;
-    let cityId = req.body.cityId;
+    let cityId = Number(req.body.cityId)||0;
   
-    if(cityId === null){
-        response.json({"status":1, "message": "province array is null"}); 
+    if(cityId === 0){
+        response.json({'status':1, 'message': 'cityId is 0'}); 
     }
     superagent.get(countyURL).set(headers).buffer(true).charset('gbk').end(function (err, res) {
         // 抛错拦截
         if(err){
             logger.error(countyURL);
             logger.error(err);
-            return false;
+            return next();
         }
         // 等待 code
         let body = res.text;
         let $ = cheerio.load(body);
         var countyArray = [];
+        var order = 1;
         $('.countytr').each(function(index, elem){
-            var aList = $(elem).find("td");
-            var firstTd = aList.eq(0).find("a");
-            var secondTd = aList.eq(1).find("a");
+            var aList = $(elem).find('td');
+            var firstTd = aList.eq(0).find('a');
+            var secondTd = aList.eq(1).find('a');
             var href = firstTd.prop('href');
             let countyId;
-            var order = 1;
             if(href != null && href.length > 0){
-                countyId = href.slice(href.lastIndexOf('/')+1, href.indexOf('.'));
+                countyId = Number(href.slice(href.lastIndexOf('/')+1, href.indexOf('.')));
                 let countyName = secondTd.text();
                 let shortName = getShortName(countyName);
-                var display = areaConst.gaoXinQu.indexOf(countyName) ? false : true;
+                var display = (areaConst.gaoXinQu.indexOf(countyName) >= 0) ? false : true;
                 var py = pinyin(shortName,{style:'normal'});
                 if(py == null || py.length == 0){
-                    py = [["null"]];
-                    logger.error("pinyin null , county shortName:"+shortName);
+                    py = [['null']];
+                    logger.error('pinyin null , county shortName:'+shortName);
                 }
                 countyArray.push({
                     nativeId: countyId,
                     parentId: cityId,
-                    nativeCode: firstTd.text(),
+                    code: firstTd.text(),
                     name: countyName,
                     shortName: shortName,
                     groupName: py[0].join('').slice(0,1).toUpperCase(),
-                    pinyin: py.join(' '),
-                    level: 3,
+                    phonics: py.join(' '),
+                    type: 'DISTRICT',
                     valid: true,
                     display: display,
-                    order: order,
-                    URL: countyURL.slice(0, countyURL.lastIndexOf('.'))  + "/" + countyId + ".html"
+                    rank: order,
+                    subURL: countyURL.slice(0, countyURL.lastIndexOf('.'))  + '/' + countyId + '.html'
                 });
                 order ++;
             } else {
                 let fText = aList.eq(0).text();
                 let countyName = aList.eq(1).text();
                 let shortName = getShortName(countyName);
-                var display = areaConst.gaoXinQu.indexOf(countyName) ? false : true;
+                var display = (areaConst.gaoXinQu.indexOf(countyName) >= 0)? false : true;
                 var py = pinyin(shortName, {style:'normal'});
                 if(py == null || py.length == 0){
-                    py = [["null"]];
-                    logger.error("pinyin null , county shortName:"+shortName);
+                    py = [['null']];
+                    logger.error('pinyin null , county shortName:'+shortName);
                 }
                 countyId = fText.slice(0, 6);
                 countyArray.push({
                     nativeId: countyId,
                     parentId: cityId,
-                    nativeCode: fText,
+                    code: fText,
                     name: countyName,
                     shortName: shortName,
-                    groupName:py[0].join('').slice(0,1),
-                    pinyin: py.join(' '),
-                    level: 3,
+                    groupName:py[0].join('').slice(0,1).toUpperCase(),
+                    phonics: py.join(' '),
+                    type: 'DISTRICT',
                     valid: true,
                     display: display,
-                    order: order
+                    rank: order
                 }); 
                 order ++;
             }
         });
-        response.json(countyArray);
+        //批量入库
+        Area.insertMany(countyArray, function(err, countys){
+            if(err){
+                logger.error('入库失败：' + err.message);
+            }
+            response.json(countys);
+        });
     });
 }
 function getShortName(source) {
@@ -235,7 +250,7 @@ function getShortName(source) {
       return areaConst.xinQuSN[areaConst.xinQu.indexOf(source)];
     } else if(areaConst.gaoXinQu.indexOf(source) >= 0){
       return source;
-    } else if(source === "县"){
+    } else if(source === '县'){
       //重庆市下的县特殊处理
       return source;
     } else if(source.length === 2){

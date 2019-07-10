@@ -2,20 +2,19 @@ var mongoose  = require('mongoose');
 var Schema    = mongoose.Schema;
 
 var AreaSchema = Schema({
-    nativeId: String ,
-    parentId: Schema.Types.ObjectId,
-    nativeCode: { type: String, default:'86000000000'} ,
+    nativeId: Number,
+    parentId: Number,
+    code: { type: String, default:'00000000000'} ,
     name: String,
     shortName: String,
     groupName: String,
-    pinyin:  String,
-    level: Number,
+    phonics:  String,
+    locale: { type: String, default:'all'} ,
+    type: { type: String, enum: ['COUNTRY', 'PROVINCE', 'CITY', 'DISTRICT', 'TOWN']},
     valid: { type: Boolean, default: true},
     display: { type: Boolean, default: true},
-    order: Number,
-    URL: String,
-    create_at: { type: Date, default: Date.now },
-    update_at: { type: Date, default: Date.now }
-});
+    rank: Number,
+    subURL: String
+},{ timestamps: true, collection: 'common_region' });
 
 mongoose.model('Area', AreaSchema);

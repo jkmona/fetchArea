@@ -72,11 +72,11 @@
           return;
         }
         var province = provinceList[pIndex];
-        if(province.URL == null || province.URL.length === 0) {
+        if(province.subURL == null || province.subURL.length === 0) {
           return false;
         }
         $.ajax({cache: false, type:'post', url: "/areas/doFetchCity" ,
-          data:{ "cityURL": province.URL, "provinceId": province._id },
+          data:{ "cityURL": province.subURL, "provinceId": province.nativeId },
           success : function(data) {
             cityList = cityList.concat(data);
             getCityList(pIndex + 1);
@@ -101,11 +101,11 @@
           return;
         }
         var city = cityList[cIndex];
-        if(city.URL == null || city.URL.length === 0) {
+        if(city.subURL == null || city.subURL.length === 0) {
           return false;
         }
         $.ajax({cache:false, type:'post', url:"/areas/doFetchCounty" ,
-          data:{ "countyURL": city.URL, "cityId": city.nativeId},
+          data:{ "countyURL": city.subURL, "cityId": city.nativeId},
           success : function(data) {
             countyList = countyList.concat(data);
             getCountyList(cIndex + 1);
