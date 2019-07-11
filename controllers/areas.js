@@ -45,7 +45,7 @@ exports.fetchProvince = (req, response, next) => {
                 }
                 provinceArray.push({
                     nativeId: provinceId,
-                    parentId: 1,
+                    parentId: mongoose.Types.ObjectId('5d2471b29092232c68002ee3'),
                     code: provinceId + '000000000',
                     name: provinceName,
                     shortName: shortName,
@@ -74,9 +74,9 @@ exports.fetchProvince = (req, response, next) => {
 
 exports.fetchCity = (req, response, next) => {
     var cityURL = req.body.cityURL;
-    let provinceId = Number(req.body.provinceId)||0;
+    let provinceId = req.body.provinceId;
 
-    if(provinceId === 0){
+    if(provinceId === null){
         response.json({'status':1, 'message': 'province id is null'}); 
     }
     superagent.get(cityURL).set(headers).buffer(true).charset('gbk').end(function (err, res) {
@@ -136,10 +136,10 @@ exports.fetchCity = (req, response, next) => {
 }
 exports.fetchCounty = (req, response, next) => {
     var countyURL = req.body.countyURL;
-    let cityId = Number(req.body.cityId)||0;
+    let cityId = req.body.cityId;
   
-    if(cityId === 0){
-        response.json({'status':1, 'message': 'cityId is 0'}); 
+    if(cityId === null){
+        response.json({'status':1, 'message': 'cityId is null'}); 
     }
     superagent.get(countyURL).set(headers).buffer(true).charset('gbk').end(function (err, res) {
         // 抛错拦截

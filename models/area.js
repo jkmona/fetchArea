@@ -3,7 +3,7 @@ var Schema    = mongoose.Schema;
 
 var AreaSchema = Schema({
     nativeId: Number,
-    parentId: Number,
+    parentId: Schema.Types.ObjectId,
     code: { type: String, default:'00000000000'} ,
     name: String,
     shortName: String,
