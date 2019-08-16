@@ -16,9 +16,9 @@
             "protocol" : "inspector",
             "env": {
                 "PORT": "8888", 
-                "redis_host": "10.255.56.136", 
-                "redis_auth": "a8bc83fd0613cb675c990fb228ca4d1f52d889587d294cb3fd36e1524571ee02",
-                "mongo_uri": "mongodb://sso:sso100@39.105.163.151:27017/sso_test"
+                "redis_host": "127.0.0.1", 
+                "redis_auth": "f98a8ade683c70d3a8b84d84f723d686",
+                "mongo_uri": "mongodb://sso:sso100@127.0.0.1:27017/sso_test"
             }
         }
         /*{
