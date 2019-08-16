@@ -8,20 +8,20 @@
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
-    "connect-redis": "^3.4.1",
+    "connect-redis": "^3.4.2",
     "cookie-parser": "~1.4.4",
     "crypto": "^1.0.1",
     "debug": "~2.6.9",
-    "ejs": "~2.6.1",
+    "ejs": "^2.6.2",
     "express": "~4.16.1",
     "express-session": "^1.16.2",
     "http-errors": "~1.6.3",
     "iconv-lite": "^0.4.24",
-    "log4js": "^4.3.2",
-    "mongoose": "^5.5.10",
+    "log4js": "^4.5.1",
+    "mongoose": "^5.6.9",
     "morgan": "~1.9.1",
     "node-pinyin": "^0.2.3",
-    "superagent": "^5.0.5",
+    "superagent": "^5.1.0",
     "superagent-charset": "^1.2.0"
   }
 }
