@@ -1,0 +1,14 @@
+version: '2.1'
+
+services:
+  fetcharea:
+    image: fetcharea
+    build: .
+    environment:
+      - NODE_ENV: production
+      - PORT: 3000
+      - redis_host: ""
+      - redis_auth: "a8bc83fd0613cb675c990fb228ca4d1f52d889587d294cb3fd36e1524571ee02"
+      - mongo_uri: "mongodb://sso:sso100@127.0.0.1:27017/sso_test"
+    ports:
+      - 3000:3000
