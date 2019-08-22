@@ -6,15 +6,15 @@ var areaConst = require('../modules/const/areaConst');
 var logger = require('../modules/logger');
 var mongoose  = require('mongoose');
 var models  = require('../models');
-var Area    = models.Area;
+var Region    = models.Region;
 
 charset(superagent);
 const headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.65 Safari/537.36'};
 
 exports.getAreaList = (req, response, next) => {
-    Area.find(function(error, area){
-        logger.info('area list:' + area);
-        response.json(area);
+    Region.find(function(error, region){
+        logger.info('region list:' + region);
+        response.json(region);
     });
 }
 
@@ -62,7 +62,7 @@ exports.fetchProvince = (req, response, next) => {
         });
         //console.log(provinceArray);
         //批量入库
-        Area.insertMany(provinceArray, function(err, province){
+        Region.insertMany(provinceArray, function(err, province){
             if(err){
                 logger.error('入库失败：' + err.message);
             }
@@ -126,7 +126,7 @@ exports.fetchCity = (req, response, next) => {
         });
         //console.log(cityArray);
         //批量入库
-        Area.insertMany(cityArray, function(err, citys){
+        Region.insertMany(cityArray, function(err, citys){
             if(err){
                 logger.error('入库失败：' + err.message);
             }
@@ -212,7 +212,7 @@ exports.fetchCounty = (req, response, next) => {
             }
         });
         //批量入库
-        Area.insertMany(countyArray, function(err, countys){
+        Region.insertMany(countyArray, function(err, countys){
             if(err){
                 logger.error('入库失败：' + err.message);
             }

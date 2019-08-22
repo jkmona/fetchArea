@@ -44,7 +44,7 @@
           }else{
             $('#provinceURL').addClass("is-valid").removeClass('is-invalid');
           }
-          $.ajax({cache:false, type:'post', url:"/areas/doFetchProvince" ,
+          $.ajax({cache:false, type:'post', url:"/region/doFetchProvince" ,
             data:{ "provinceURL" : pUrl },
             success : function(data) {
               provinceList = data;
@@ -75,7 +75,7 @@
         if(province.subURL == null || province.subURL.length === 0) {
           return false;
         }
-        $.ajax({cache: false, type:'post', url: "/areas/doFetchCity" ,
+        $.ajax({cache: false, type:'post', url: "/region/doFetchCity" ,
           data:{ "cityURL": province.subURL, "provinceId": province._id },
           success : function(data) {
             cityList = cityList.concat(data);
@@ -104,7 +104,7 @@
         if(city.subURL == null || city.subURL.length === 0) {
           return false;
         }
-        $.ajax({cache:false, type:'post', url:"/areas/doFetchCounty" ,
+        $.ajax({cache:false, type:'post', url:"/region/doFetchCounty" ,
           data:{ "countyURL": city.subURL, "cityId": city._id},
           success : function(data) {
             countyList = countyList.concat(data);

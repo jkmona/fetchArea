@@ -6,7 +6,7 @@ const logger = require('morgan');
 const config = require('./config');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var areaRouter = require('./routes/areas');
+var regionRouter = require('./routes/region');
 var session = require('express-session');
 
 require('./models')
@@ -27,7 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/areas', areaRouter);
+app.use('/region', regionRouter);
 
 //redis session
 app.use(session({
