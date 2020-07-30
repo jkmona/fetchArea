@@ -11,7 +11,7 @@ var Region    = models.Region;
 charset(superagent);
 const headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.65 Safari/537.36'};
 
-exports.getAreaList = (req, response, next) => {
+exports.getRegionList = (req, response, next) => {
     Region.find(function(error, region){
         logger.info('region list:' + region);
         response.json(region);
@@ -45,7 +45,7 @@ exports.fetchProvince = (req, response, next) => {
                 }
                 provinceArray.push({
                     nativeId: provinceId,
-                    parentId: mongoose.Types.ObjectId('5d2471b29092232c68002ee3'),
+                    parentId: 1,
                     code: provinceId + '000000000',
                     name: provinceName,
                     shortName: shortName,
@@ -55,7 +55,8 @@ exports.fetchProvince = (req, response, next) => {
                     valid: true,
                     display: true,
                     rank: order,
-                    subURL: provinceURL.slice(0, provinceURL.lastIndexOf('/')) + '/' + provinceId + '.html'
+                    subURL: provinceURL.slice(0, provinceURL.lastIndexOf('/')) + '/' + provinceId + '.html',
+                    parentIdList: [1]
                 });
                 order ++;
             });
@@ -74,9 +75,9 @@ exports.fetchProvince = (req, response, next) => {
 
 exports.fetchCity = (req, response, next) => {
     var cityURL = req.body.cityURL;
-    let provinceId = req.body.provinceId;
+    let provinceId = Number(req.body.provinceId) || 0;
 
-    if(provinceId === null){
+    if(provinceId <= 0){
         response.json({'status':1, 'message': 'province id is null'}); 
     }
     superagent.get(cityURL).set(headers).buffer(true).charset('gbk').end(function (err, res) {
@@ -117,7 +118,8 @@ exports.fetchCity = (req, response, next) => {
                     valid: true,
                     display: true,
                     rank: order,
-                    subURL: cityURL.slice(0, cityURL.lastIndexOf('.'))  + '/' + cityId + '.html'
+                    subURL: cityURL.slice(0, cityURL.lastIndexOf('.'))  + '/' + cityId + '.html',
+                    parentIdList: [1, provinceId]
                 });
                 order ++;
             }else{
@@ -136,9 +138,9 @@ exports.fetchCity = (req, response, next) => {
 }
 exports.fetchCounty = (req, response, next) => {
     var countyURL = req.body.countyURL;
-    let cityId = req.body.cityId;
+    let cityId =  Number(req.body.cityId) || 0;
   
-    if(cityId === null){
+    if(cityId <= 0){
         response.json({'status':1, 'message': 'cityId is null'}); 
     }
     superagent.get(countyURL).set(headers).buffer(true).charset('gbk').end(function (err, res) {
@@ -181,7 +183,8 @@ exports.fetchCounty = (req, response, next) => {
                     valid: true,
                     display: display,
                     rank: order,
-                    subURL: countyURL.slice(0, countyURL.lastIndexOf('.'))  + '/' + countyId + '.html'
+                    subURL: countyURL.slice(0, countyURL.lastIndexOf('.'))  + '/' + countyId + '.html',
+                    parentIdList:[]
                 });
                 order ++;
             } else {

@@ -15,4 +15,4 @@ mongoose.connect(config.mongodb, {
 });
 
 require('./region');
-exports.Area = mongoose.model('Area');
+exports.Region = mongoose.model('Region');

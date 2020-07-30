@@ -3,7 +3,7 @@ var Schema    = mongoose.Schema;
 
 var RegionSchema = Schema({
     nativeId: { type: Number, require: true},
-    parentId: { type: Schema.Types.ObjectId, require: true},
+    parentId: { type: Number, require: true},
     code: { type: String, default:'00000000000', require: true} ,
     name: { type: String, require: true},
     shortName: String,
@@ -14,7 +14,8 @@ var RegionSchema = Schema({
     valid: { type: Boolean, default: true},
     display: { type: Boolean, default: true},
     rank: { type: Number, require: true},
-    subURL: String
+    subURL: String,
+    parentIdList: { type: Array, require: true}
 },{ timestamps: true, collection: 'common_region' });
 
 mongoose.model('Region', RegionSchema);

@@ -18,7 +18,7 @@
     "http-errors": "~1.6.3",
     "iconv-lite": "^0.4.24",
     "log4js": "^4.5.1",
-    "mongoose": "^5.6.9",
+    "mongoose": "^5.9.25",
     "morgan": "~1.9.1",
     "node-pinyin": "^0.2.3",
     "superagent": "^5.1.0",
